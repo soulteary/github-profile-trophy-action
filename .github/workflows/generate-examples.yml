@@ -1,0 +1,240 @@
+name: Generate Trophy Examples
+
+on:
+  # schedule:
+    # - cron: "0 0 * * *" # Runs once daily at midnight
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/generate-examples.yml'
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    
+    permissions:
+      contents: write
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Generate basic trophy
+        uses: soulteary/github-profile-trophy-action@v1.0.0
+        with:
+          options: 'username=${{ github.repository_owner }}'
+          path: .github/assets/trophy-basic.svg
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Generate trophy with theme
+        uses: soulteary/github-profile-trophy-action@v1.0.0
+        with:
+          options: 'username=${{ github.repository_owner }}&theme=onedark'
+          path: .github/assets/trophy-themed.svg
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Generate trophy filtered by titles
+        uses: soulteary/github-profile-trophy-action@v1.0.0
+        with:
+          options: 'username=${{ github.repository_owner }}&title=Stars,Followers'
+          path: .github/assets/trophy-filtered-titles.svg
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Generate trophy filtered by ranks
+        uses: soulteary/github-profile-trophy-action@v1.0.0
+        with:
+          options: 'username=${{ github.repository_owner }}&rank=S,AAA'
+          path: .github/assets/trophy-filtered-ranks.svg
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Generate trophy with custom layout
+        uses: soulteary/github-profile-trophy-action@v1.0.0
+        with:
+          options: 'username=${{ github.repository_owner }}&column=3&row=2&margin-w=15&margin-h=15'
+          path: .github/assets/trophy-custom-layout.svg
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Generate theme default
+        uses: soulteary/github-profile-trophy-action@v1.0.0
+        with:
+          options: 'username=${{ github.repository_owner }}&theme=default'
+          path: .github/assets/theme-default.svg
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Generate theme flat
+        uses: soulteary/github-profile-trophy-action@v1.0.0
+        with:
+          options: 'username=${{ github.repository_owner }}&theme=flat'
+          path: .github/assets/theme-flat.svg
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Generate theme onedark
+        uses: soulteary/github-profile-trophy-action@v1.0.0
+        with:
+          options: 'username=${{ github.repository_owner }}&theme=onedark'
+          path: .github/assets/theme-onedark.svg
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Generate theme gruvbox
+        uses: soulteary/github-profile-trophy-action@v1.0.0
+        with:
+          options: 'username=${{ github.repository_owner }}&theme=gruvbox'
+          path: .github/assets/theme-gruvbox.svg
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Generate theme dracula
+        uses: soulteary/github-profile-trophy-action@v1.0.0
+        with:
+          options: 'username=${{ github.repository_owner }}&theme=dracula'
+          path: .github/assets/theme-dracula.svg
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Generate theme monokai
+        uses: soulteary/github-profile-trophy-action@v1.0.0
+        with:
+          options: 'username=${{ github.repository_owner }}&theme=monokai'
+          path: .github/assets/theme-monokai.svg
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Generate theme chalk
+        uses: soulteary/github-profile-trophy-action@v1.0.0
+        with:
+          options: 'username=${{ github.repository_owner }}&theme=chalk'
+          path: .github/assets/theme-chalk.svg
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Generate theme nord
+        uses: soulteary/github-profile-trophy-action@v1.0.0
+        with:
+          options: 'username=${{ github.repository_owner }}&theme=nord'
+          path: .github/assets/theme-nord.svg
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Generate theme alduin
+        uses: soulteary/github-profile-trophy-action@v1.0.0
+        with:
+          options: 'username=${{ github.repository_owner }}&theme=alduin'
+          path: .github/assets/theme-alduin.svg
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Generate theme darkhub
+        uses: soulteary/github-profile-trophy-action@v1.0.0
+        with:
+          options: 'username=${{ github.repository_owner }}&theme=darkhub'
+          path: .github/assets/theme-darkhub.svg
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Generate theme juicyfresh
+        uses: soulteary/github-profile-trophy-action@v1.0.0
+        with:
+          options: 'username=${{ github.repository_owner }}&theme=juicyfresh'
+          path: .github/assets/theme-juicyfresh.svg
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Generate theme oldie
+        uses: soulteary/github-profile-trophy-action@v1.0.0
+        with:
+          options: 'username=${{ github.repository_owner }}&theme=oldie'
+          path: .github/assets/theme-oldie.svg
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Generate theme buddhism
+        uses: soulteary/github-profile-trophy-action@v1.0.0
+        with:
+          options: 'username=${{ github.repository_owner }}&theme=buddhism'
+          path: .github/assets/theme-buddhism.svg
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Generate theme radical
+        uses: soulteary/github-profile-trophy-action@v1.0.0
+        with:
+          options: 'username=${{ github.repository_owner }}&theme=radical'
+          path: .github/assets/theme-radical.svg
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Generate theme onestar
+        uses: soulteary/github-profile-trophy-action@v1.0.0
+        with:
+          options: 'username=${{ github.repository_owner }}&theme=onestar'
+          path: .github/assets/theme-onestar.svg
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Generate theme discord
+        uses: soulteary/github-profile-trophy-action@v1.0.0
+        with:
+          options: 'username=${{ github.repository_owner }}&theme=discord'
+          path: .github/assets/theme-discord.svg
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Generate theme algolia
+        uses: soulteary/github-profile-trophy-action@v1.0.0
+        with:
+          options: 'username=${{ github.repository_owner }}&theme=algolia'
+          path: .github/assets/theme-algolia.svg
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Generate theme gitdimmed
+        uses: soulteary/github-profile-trophy-action@v1.0.0
+        with:
+          options: 'username=${{ github.repository_owner }}&theme=gitdimmed'
+          path: .github/assets/theme-gitdimmed.svg
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Generate theme tokyonight
+        uses: soulteary/github-profile-trophy-action@v1.0.0
+        with:
+          options: 'username=${{ github.repository_owner }}&theme=tokyonight'
+          path: .github/assets/theme-tokyonight.svg
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Generate theme matrix
+        uses: soulteary/github-profile-trophy-action@v1.0.0
+        with:
+          options: 'username=${{ github.repository_owner }}&theme=matrix'
+          path: .github/assets/theme-matrix.svg
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Generate theme apprentice
+        uses: soulteary/github-profile-trophy-action@v1.0.0
+        with:
+          options: 'username=${{ github.repository_owner }}&theme=apprentice'
+          path: .github/assets/theme-apprentice.svg
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Generate theme dark_dimmed
+        uses: soulteary/github-profile-trophy-action@v1.0.0
+        with:
+          options: 'username=${{ github.repository_owner }}&theme=dark_dimmed'
+          path: .github/assets/theme-dark_dimmed.svg
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Generate theme dark_lover
+        uses: soulteary/github-profile-trophy-action@v1.0.0
+        with:
+          options: 'username=${{ github.repository_owner }}&theme=dark_lover'
+          path: .github/assets/theme-dark_lover.svg
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Generate theme kimbie_dark
+        uses: soulteary/github-profile-trophy-action@v1.0.0
+        with:
+          options: 'username=${{ github.repository_owner }}&theme=kimbie_dark'
+          path: .github/assets/theme-kimbie_dark.svg
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Generate theme aura
+        uses: soulteary/github-profile-trophy-action@v1.0.0
+        with:
+          options: 'username=${{ github.repository_owner }}&theme=aura'
+          path: .github/assets/theme-aura.svg
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Commit trophy examples
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .github/assets/trophy-*.svg .github/assets/theme-*.svg
+          git diff --staged --quiet || git commit -m "Update trophy examples"
+          git push || exit 0

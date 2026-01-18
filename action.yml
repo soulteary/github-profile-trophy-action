@@ -1,0 +1,45 @@
+name: Profile Trophy Action
+description: Generate GitHub Profile Trophy cards in GitHub Actions using the Go service.
+author: soulteary
+inputs:
+  options:
+    description: Options for the trophy card (query string or JSON).
+    required: false
+    default: ""
+  path:
+    description: Output path for SVG file (relative path; include filename with .svg).
+    required: false
+    default: ""
+  token:
+    description: GitHub token (PAT or GITHUB_TOKEN).
+    required: false
+    default: ""
+  version:
+    description: Version of github-profile-trophy binary to use (e.g., v1.0.0). Defaults to latest.
+    required: false
+    default: "v1.0.0"
+  repo:
+    description: GitHub repository in format owner/repo. Defaults to soulteary/github-profile-trophy.
+    required: false
+    default: "soulteary/github-profile-trophy"
+outputs:
+  path:
+    description: Path where the SVG file was written.
+runs:
+  using: composite
+  steps:
+    - name: Generate trophy card
+      run: bash "${{ github.action_path }}/index.sh"
+      shell: bash
+      env:
+        INPUT_OPTIONS: ${{ inputs.options }}
+        INPUT_PATH: ${{ inputs.path }}
+        INPUT_TOKEN: ${{ inputs.token || github.token }}
+        INPUT_VERSION: ${{ inputs.version }}
+        INPUT_REPO: ${{ inputs.repo }}
+        GITHUB_TOKEN1: ${{ inputs.token || github.token }}
+        GITHUB_ACTION_PATH: ${{ github.action_path }}
+
+branding:
+  icon: bar-chart-2
+  color: orange
