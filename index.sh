@@ -198,8 +198,17 @@ if [ ! -f "$OUTPUT_PATH" ] || [ ! -s "$OUTPUT_PATH" ]; then
   exit 1
 fi
 
-if ! head -n 1 "$OUTPUT_PATH" | grep -q -i svg; then
-  log_warn "Output may not be valid SVG; first line: $(head -n 1 "$OUTPUT_PATH")"
+# The generator writes a leading blank line and indents the root element, so
+# the SVG root never lands on line 1. Checking only line 1 made this warning
+# fire on every successful run, which is the same as not checking at all.
+# Scan the head of the file instead, and match "<svg" rather than the bare
+# word "svg" so an error page that merely mentions SVG is not accepted.
+# `grep` runs without -q on purpose: -q exits on the first match, which can
+# hand `head` a SIGPIPE and — under `set -o pipefail` — make the pipeline
+# report failure even though the match succeeded.
+# This stays a warning: a renderer tweak must not fail a consumer's build.
+if ! head -n 20 "$OUTPUT_PATH" | grep -i "<svg" >/dev/null 2>&1; then
+  log_warn "Output may not be valid SVG; first non-blank line: $(awk 'NF{print; exit}' "$OUTPUT_PATH")"
 fi
 
 log_info "Wrote $OUTPUT_PATH"
