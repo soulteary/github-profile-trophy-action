@@ -40,7 +40,17 @@ jobs:
           # Creating the Release through the UI also creates the tag, which is
           # what triggers this workflow, so the Release may already exist.
           if gh release view "$v" >/dev/null 2>&1; then
-            echo "Release $v already exists; leaving it unchanged."
+            # "exists" is not "published". `gh release view` falls back to
+            # listing releases when the by-tag endpoint 404s, so it finds
+            # drafts too -- and a draft prepared before the tag was pushed
+            # would otherwise be left unpublished while the alias step below
+            # moved the floating reference onto it.
+            if [ "$(gh release view "$v" --json isDraft --jq '.isDraft')" = "true" ]; then
+              echo "Release $v exists as a draft; publishing it."
+              gh release edit "$v" --draft=false
+            else
+              echo "Release $v already exists and is published; leaving it unchanged."
+            fi
           else
             gh release create "$v" --title "$v" --generate-notes
           fi
