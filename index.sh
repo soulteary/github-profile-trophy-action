@@ -75,12 +75,20 @@ normalize_relative_path() {
 # openat(O_NOFOLLOW) to offer, and a workflow that can do that can already run
 # arbitrary code in the job.
 assert_inside_workspace() {
-  local candidate="$1" dir resolved root
+  local candidate="$1" dir resolved root link_dir
   root="$(pwd -P)" || return 1
 
-  # An existing final component that is itself a symlink is refused outright.
+  # A symlink is judged by where it lands, not by being a symlink.
+  # "card.svg -> real/card.svg" stays inside the workspace and satisfies the
+  # documented contract, so refusing every symlink outright would break valid
+  # workflows. Follow it and apply the same containment test.
   if [ -L "$candidate" ]; then
-    return 1
+    link_dir="$(cd -P "$(dirname "$candidate")" 2>/dev/null \
+      && cd -P "$(dirname "$(readlink "$candidate")")" 2>/dev/null && pwd -P)" || return 1
+    case "$link_dir" in
+      "$root"|"$root"/*) return 0 ;;
+      *) return 1 ;;
+    esac
   fi
 
   dir="$(dirname "$candidate")"

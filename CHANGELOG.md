@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.1] - 2026-09-13
+
+### Fixed
+- A symlink that stays inside the workspace works again. v1.2.0 refused any
+  `path` whose final component was a symlink, so `card.svg -> real/card.svg` —
+  workspace-relative, exactly what the input documents, and accepted before
+  v1.2.0 — started failing for no security gain. A symlink is now followed and
+  judged by where it lands, the same containment test v1.2.0 already applied to
+  parent directories. What v1.2.0 closed stays closed: a symlink pointing
+  outside the workspace, a symlinked parent directory, and a dangling one are
+  all still refused.
+
+### Changed
+- Every `uses:` example across the six README translations now pins `@v1.2.1`.
+  They still pointed at `@v1.1.0`, so a reader copying the documented example
+  ran the version from before the path-containment work.
+
 ## [1.2.0] - 2026-09-13
 
 ### Security
@@ -97,7 +114,8 @@ not a pure fix. A workflow that branches on it will take a different path:
 The second and third rows are the ones to check before upgrading: a step that
 has silently never run will start running.
 
-[Unreleased]: https://github.com/soulteary/github-profile-trophy-action/compare/v1.2.0...main
+[Unreleased]: https://github.com/soulteary/github-profile-trophy-action/compare/v1.2.1...main
+[1.2.1]: https://github.com/soulteary/github-profile-trophy-action/compare/v1.2.0...v1.2.1
 [1.2.0]: https://github.com/soulteary/github-profile-trophy-action/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/soulteary/github-profile-trophy-action/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/soulteary/github-profile-trophy-action/releases/tag/v1.0.0

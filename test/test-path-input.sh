@@ -98,20 +98,30 @@ glob_safe "asterisk"        "README.*"
 glob_safe "bracket class"   "[a]card.svg"
 glob_safe "question mark"   "card?.svg"
 
-# --- a symlinked parent must not smuggle the write out of the workspace ---
+# --- symlinks are judged by where they land, not by being symlinks ---
 echo "symlink containment:"
 ln -sfn "$outside" escape
 out="$(run_with_path "escape/card.svg")"
 case "$out" in
-  *"resolves outside the workspace through a symlink"*) pass "symlinked parent" ;;
-  *) fail "symlinked parent" "not refused: ${out//$'\n'/ | }" ;;
+  *"resolves outside the workspace through a symlink"*) pass "symlinked parent escapes" ;;
+  *) fail "symlinked parent escapes" "not refused: ${out//$'\n'/ | }" ;;
 esac
 : > "$outside/card.svg"
 ln -sfn "$outside/card.svg" direct.svg
 out="$(run_with_path "direct.svg")"
 case "$out" in
-  *"resolves outside the workspace through a symlink"*) pass "symlinked target" ;;
-  *) fail "symlinked target" "not refused: ${out//$'\n'/ | }" ;;
+  *"resolves outside the workspace through a symlink"*) pass "symlinked target escapes" ;;
+  *) fail "symlinked target escapes" "not refused: ${out//$'\n'/ | }" ;;
+esac
+# A symlink that stays inside satisfies the documented contract and must work:
+# refusing it would break valid workflows for no security gain.
+mkdir -p real && : > real/card.svg
+ln -sfn real/card.svg inside.svg
+out="$(run_with_path "inside.svg")"
+case "$out" in
+  *"resolves outside"*|*"path must"*) fail "symlink staying inside" "wrongly refused: ${out//$'\n'/ | }" ;;
+  *"Resolved output path: inside.svg"*) pass "symlink staying inside" ;;
+  *) fail "symlink staying inside" "unexpected: ${out//$'\n'/ | }" ;;
 esac
 cd "$ROOT" || exit 1
 
