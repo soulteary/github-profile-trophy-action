@@ -36,7 +36,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Generate trophy card
-        uses: soulteary/github-profile-trophy-action@v1.1.0
+        uses: soulteary/github-profile-trophy-action@v1
         with:
           options: 'username=${{ github.repository_owner }}&theme=gruvbox&column=7&margin-w=15&margin-h=15'
           path: profile/trophy.svg
@@ -94,7 +94,7 @@ Die `options` Eingabe akzeptiert folgende Parameter:
 
 ```yaml
 - name: Generate trophy card
-  uses: soulteary/github-profile-trophy-action@v1.1.0
+  uses: soulteary/github-profile-trophy-action@v1
   with:
     options: 'username=${{ github.repository_owner }}'
     path: .github/assets/trophy.svg
@@ -107,7 +107,7 @@ Die `options` Eingabe akzeptiert folgende Parameter:
 
 ```yaml
 - name: Generate trophy card
-  uses: soulteary/github-profile-trophy-action@v1.1.0
+  uses: soulteary/github-profile-trophy-action@v1
   with:
     options: 'username=${{ github.repository_owner }}&theme=onedark'
     path: .github/assets/trophy.svg
@@ -120,7 +120,7 @@ Die `options` Eingabe akzeptiert folgende Parameter:
 
 ```yaml
 - name: Generate trophy card
-  uses: soulteary/github-profile-trophy-action@v1.1.0
+  uses: soulteary/github-profile-trophy-action@v1
   with:
     options: 'username=${{ github.repository_owner }}&title=Stars,Followers'
     path: .github/assets/trophy.svg
@@ -133,7 +133,7 @@ Die `options` Eingabe akzeptiert folgende Parameter:
 
 ```yaml
 - name: Generate trophy card
-  uses: soulteary/github-profile-trophy-action@v1.1.0
+  uses: soulteary/github-profile-trophy-action@v1
   with:
     options: 'username=${{ github.repository_owner }}&rank=S,AAA'
     path: .github/assets/trophy.svg
@@ -146,7 +146,7 @@ Die `options` Eingabe akzeptiert folgende Parameter:
 
 ```yaml
 - name: Generate trophy card
-  uses: soulteary/github-profile-trophy-action@v1.1.0
+  uses: soulteary/github-profile-trophy-action@v1
   with:
     options: 'username=${{ github.repository_owner }}&column=3&row=2&margin-w=15&margin-h=15'
     path: .github/assets/trophy.svg
@@ -159,7 +159,7 @@ Die `options` Eingabe akzeptiert folgende Parameter:
 
 ```yaml
 - name: Generate trophy card
-  uses: soulteary/github-profile-trophy-action@v1.1.0
+  uses: soulteary/github-profile-trophy-action@v1
   with:
     options: 'username=${{ github.repository_owner }}&theme=gruvbox&no-bg=true&no-frame=true'
     path: .github/assets/trophy.svg
@@ -170,7 +170,7 @@ Die `options` Eingabe akzeptiert folgende Parameter:
 
 ```yaml
 - name: Generate trophy card
-  uses: soulteary/github-profile-trophy-action@v1.1.0
+  uses: soulteary/github-profile-trophy-action@v1
   with:
     options: '{"username":"${{ github.repository_owner }}","theme":"gruvbox","column":7,"margin-w":15,"margin-h":15}'
     path: .github/assets/trophy.svg
@@ -181,7 +181,7 @@ Die `options` Eingabe akzeptiert folgende Parameter:
 
 ```yaml
 - name: Generate trophy card
-  uses: soulteary/github-profile-trophy-action@v1.1.0
+  uses: soulteary/github-profile-trophy-action@v1
   with:
     options: 'username=${{ github.repository_owner }}&theme=gruvbox'
     path: profile/trophy.svg
