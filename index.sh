@@ -75,22 +75,32 @@ normalize_relative_path() {
 # openat(O_NOFOLLOW) to offer, and a workflow that can do that can already run
 # arbitrary code in the job.
 assert_inside_workspace() {
-  local candidate="$1" dir resolved root link_dir
+  local candidate="$1" dir resolved root target hops
   root="$(pwd -P)" || return 1
 
   # A symlink is judged by where it lands, not by being a symlink.
   # "card.svg -> real/card.svg" stays inside the workspace and satisfies the
   # documented contract, so refusing every symlink outright would break valid
-  # workflows. Follow it and apply the same containment test.
-  if [ -L "$candidate" ]; then
-    link_dir="$(cd -P "$(dirname "$candidate")" 2>/dev/null \
-      && cd -P "$(dirname "$(readlink "$candidate")")" 2>/dev/null && pwd -P)" || return 1
-    case "$link_dir" in
-      "$root"|"$root"/*) return 0 ;;
-      *) return 1 ;;
+  # workflows.
+  #
+  # Where it lands means the END of the chain: a write follows every hop, so
+  # "a -> b -> /tmp/x" puts bytes in /tmp however innocent the first hop looks.
+  # `readlink` reports one hop and `readlink -f` is not portable to the macOS
+  # runner, so walk the chain. The bound stops a cycle ("a -> b -> a") spinning
+  # here; such a link cannot be written through anyway.
+  hops=0
+  while [ -L "$candidate" ]; do
+    hops=$((hops + 1))
+    [ "$hops" -gt 32 ] && return 1
+    target="$(readlink "$candidate")" || return 1
+    case "$target" in
+      /*) candidate="$target" ;;
+      *) candidate="$(dirname "$candidate")/$target" ;;
     esac
-  fi
+  done
 
+  # $candidate is now the real path the write lands on. Its parents may still be
+  # symlinks; `cd` + `pwd -P` below resolves those.
   dir="$(dirname "$candidate")"
   while [ "$dir" != "." ] && [ "$dir" != "/" ] && [ ! -d "$dir" ]; do
     dir="$(dirname "$dir")"

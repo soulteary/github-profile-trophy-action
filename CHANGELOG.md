@@ -13,11 +13,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - A symlink that stays inside the workspace works again. v1.2.0 refused any
   `path` whose final component was a symlink, so `card.svg -> real/card.svg` —
   workspace-relative, exactly what the input documents, and accepted before
-  v1.2.0 — started failing for no security gain. A symlink is now followed and
-  judged by where it lands, the same containment test v1.2.0 already applied to
-  parent directories. What v1.2.0 closed stays closed: a symlink pointing
-  outside the workspace, a symlinked parent directory, and a dangling one are
-  all still refused.
+  v1.2.0 — started failing for no security gain. A symlink is now
+  followed to the end of its chain and judged by where it lands, the same
+  containment test v1.2.0 already applied to parent directories. What v1.2.0
+  closed stays closed: a target outside the workspace, a symlinked parent
+  directory, and a chain whose last hop leaves the workspace are all refused,
+  as is a cycle.
 
 ### Changed
 - Every `uses:` example across the six README translations now pins `@v1.2.1`.
