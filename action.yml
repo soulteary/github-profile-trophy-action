@@ -15,7 +15,7 @@ inputs:
     required: false
     default: ""
   version:
-    description: Version of github-profile-trophy binary to use (e.g., v1.0.0). Defaults to latest.
+    description: Version of the github-profile-trophy binary to use (e.g., v1.0.0). Defaults to the pinned release below, so an upstream release cannot change this action's behaviour; set it to "latest" to always resolve the newest upstream release.
     required: false
     default: "v1.0.0"
   repo:
@@ -25,10 +25,12 @@ inputs:
 outputs:
   path:
     description: Path where the SVG file was written.
+    value: ${{ steps.generate.outputs.path }}
 runs:
   using: composite
   steps:
     - name: Generate trophy card
+      id: generate
       run: bash "${{ github.action_path }}/index.sh"
       shell: bash
       env:
