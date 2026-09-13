@@ -14,11 +14,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   workspace-relative filename, but nothing enforced that: the value went
   straight into `mkdir -p`, the generator's `--output`, and `$GITHUB_OUTPUT`.
   `path: /etc/x.svg` and `path: ../../../x.svg` wrote outside the workspace.
-  Absolute paths, paths that climb out with `..`, and paths whose deepest
-  existing parent resolves outside the workspace are refused, as is a final
-  component that is itself a symlink — a purely lexical check could not see
-  `escape -> /tmp/outside`, through which `escape/card.svg` landed at
-  `/tmp/outside/card.svg`.
+  Absolute paths, paths that climb out with `..`, and paths that resolve
+  outside the workspace through a symlink are refused — a purely lexical check
+  could not see `escape -> /tmp/outside`, through which `escape/card.svg`
+  landed at `/tmp/outside/card.svg`. A symlink is judged by where it lands, so
+  one that stays inside the workspace (`card.svg -> real/card.svg`) still
+  works.
 - A line break in `path` can no longer inject step outputs. `$GITHUB_OUTPUT`
   is newline-delimited, so a value containing a newline used to declare
   arbitrary extra outputs that anything reading `steps.*.outputs` would trust.
@@ -43,6 +44,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - `outputs.path` reports the normalised path, so `./profile/x.svg` comes back as
   `profile/x.svg`.
+- Every `uses:` example across the six README translations now pins `@v1.2.0`.
 
 ### Upgrading
 A workflow that passed an absolute path, a path climbing out of the workspace,
