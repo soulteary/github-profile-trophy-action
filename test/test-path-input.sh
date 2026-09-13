@@ -143,6 +143,17 @@ case "$out" in
   *"Resolved output path: chain_inside.svg"*) pass "symlink chain staying inside" ;;
   *) fail "symlink chain staying inside" "unexpected: ${out//$'\n'/ | }" ;;
 esac
+# A chain target can carry its own "..", and "cd" without -P cancels it against
+# the logical path before following any symlink -- so "link/.." reads as the
+# workspace while a write through it lands beside link's real parent.
+mkdir -p "$outside/dir"
+ln -sfn "$outside/dir" hoplink
+ln -sfn 'hoplink/../evil.svg' dotdot.svg
+out="$(run_with_path "dotdot.svg")"
+case "$out" in
+  *"resolves outside the workspace through a symlink"*) pass "symlink target with .. escapes" ;;
+  *) fail "symlink target with .." "not refused: ${out//$'\n'/ | }" ;;
+esac
 # A cycle must be refused rather than walked forever. If the hop bound ever
 # regresses, this case stops terminating and the job times out.
 ln -sfn loop_b.svg loop_a.svg

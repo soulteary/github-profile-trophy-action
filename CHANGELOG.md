@@ -15,10 +15,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   workspace-relative, exactly what the input documents, and accepted before
   v1.2.0 — started failing for no security gain. A symlink is now
   followed to the end of its chain and judged by where it lands, the same
-  containment test v1.2.0 already applied to parent directories. What v1.2.0
-  closed stays closed: a target outside the workspace, a symlinked parent
-  directory, and a chain whose last hop leaves the workspace are all refused,
-  as is a cycle.
+  containment test v1.2.0 already applied to parent directories, judged with
+  physical path resolution so a `..` in a chain target is resolved the way the
+  kernel resolves it rather than cancelled lexically against the symlink that
+  precedes it. What v1.2.0 closed stays closed: a target outside the
+  workspace, a symlinked parent directory, and a chain whose last hop leaves
+  the workspace are all refused, as is a cycle.
 
 ### Changed
 - Every `uses:` example across the six README translations now points at the

@@ -100,12 +100,17 @@ assert_inside_workspace() {
   done
 
   # $candidate is now the real path the write lands on. Its parents may still be
-  # symlinks; `cd` + `pwd -P` below resolves those.
+  # symlinks, and a chain target can carry its own "..", so the ancestor must be
+  # resolved the way the kernel will resolve it. `cd` defaults to -L, which
+  # cancels ".." against the logical path BEFORE following any symlink:
+  # "link/.." reads as the workspace to it, while a write through "link/../x"
+  # follows link first and lands beside link's real parent. -P is what makes
+  # this check agree with where the bytes go.
   dir="$(dirname "$candidate")"
   while [ "$dir" != "." ] && [ "$dir" != "/" ] && [ ! -d "$dir" ]; do
     dir="$(dirname "$dir")"
   done
-  resolved="$(cd "$dir" 2>/dev/null && pwd -P)" || return 1
+  resolved="$(cd -P "$dir" 2>/dev/null && pwd -P)" || return 1
 
   case "$resolved" in
     "$root") return 0 ;;
