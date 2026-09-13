@@ -11,10 +11,12 @@ set -uo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 SCRIPT="${ROOT}/index.sh"
-CARD_ENV=()
 # github-readme-stats-action requires a card type; github-profile-trophy-action
-# has only one and takes no such input.
-grep -q 'INPUT_CARD' "$SCRIPT" && CARD_ENV=(INPUT_CARD=stats)
+# has only one and ignores INPUT_CARD entirely, so setting it unconditionally is
+# inert there. Passing it through an array instead would mean expanding an empty
+# one, which is an "unbound variable" error under `set -u` before bash 4.4 --
+# i.e. on every macOS runner. That is not hypothetical: it is what this exact
+# file did on its first CI run.
 
 fails=0
 pass() { printf '  ok       %s\n' "$1"; }
@@ -22,7 +24,7 @@ fail() { printf '  FAIL     %s\n     %s\n' "$1" "$2"; fails=$((fails + 1)); }
 
 run_with_path() {
   env -u GITHUB_REPOSITORY_OWNER -u GITHUB_OUTPUT -u INPUT_OPTIONS \
-    "${CARD_ENV[@]}" INPUT_PATH="$1" \
+    INPUT_CARD=stats INPUT_PATH="$1" \
     bash "$SCRIPT" 2>&1
 }
 
