@@ -7,6 +7,50 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-09-13
+
+### Security
+- The `path` input is now confined to the workspace. It was documented as a
+  workspace-relative filename, but nothing enforced that: the value went
+  straight into `mkdir -p`, the generator's `--output`, and `$GITHUB_OUTPUT`.
+  `path: /etc/x.svg` and `path: ../../../x.svg` wrote outside the workspace.
+  Absolute paths, paths that climb out with `..`, and paths whose deepest
+  existing parent resolves outside the workspace are refused, as is a final
+  component that is itself a symlink — a purely lexical check could not see
+  `escape -> /tmp/outside`, through which `escape/card.svg` landed at
+  `/tmp/outside/card.svg`.
+- A line break in `path` can no longer inject step outputs. `$GITHUB_OUTPUT`
+  is newline-delimited, so a value containing a newline used to declare
+  arbitrary extra outputs that anything reading `steps.*.outputs` would trust.
+  These matter most when `path` is fed from workflow context rather than typed
+  by hand.
+
+### Fixed
+- Path splitting no longer performs pathname expansion. An unquoted `set -- $raw`
+  globs as well as splits, so with matching files alongside, `README.*` became
+  `README.md/README.txt` and `[a]card.svg` became `acard.svg` — valid Unix
+  filenames rewritten according to whatever happened to sit next to them.
+
+### Added
+- The resolved output path is logged. Normalisation can rewrite what was asked
+  for, and this is the value that reaches the `path` output.
+- The repository's first CI: shellcheck, a syntax check, and path-input tests on
+  `ubuntu-latest` and `macos-latest`. Until now `index.sh` — the entire action —
+  was never executed by any check before a consumer ran it. The macOS leg is not
+  redundant: its `/bin/bash` is 3.2, and it caught a bash-4-only construct on its
+  first run.
+
+### Changed
+- `outputs.path` reports the normalised path, so `./profile/x.svg` comes back as
+  `profile/x.svg`.
+
+### Upgrading
+A workflow that passed an absolute path, a path climbing out of the workspace,
+or a path through a symlink pointing outside it will now fail instead of writing
+outside the workspace. The documented contract has always been a
+workspace-relative filename. Note that the `v1` alias moves with this release,
+so consumers pinned to `@v1` receive this automatically.
+
 ## [1.1.0] - 2026-09-13
 
 ### Fixed
@@ -53,6 +97,7 @@ not a pure fix. A workflow that branches on it will take a different path:
 The second and third rows are the ones to check before upgrading: a step that
 has silently never run will start running.
 
-[Unreleased]: https://github.com/soulteary/github-profile-trophy-action/compare/v1.1.0...main
+[Unreleased]: https://github.com/soulteary/github-profile-trophy-action/compare/v1.2.0...main
+[1.2.0]: https://github.com/soulteary/github-profile-trophy-action/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/soulteary/github-profile-trophy-action/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/soulteary/github-profile-trophy-action/releases/tag/v1.0.0
