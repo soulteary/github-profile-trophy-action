@@ -28,11 +28,23 @@ fi
 normalize_relative_path() {
   local raw="$1" part joined="" depth=0
   local oldIFS="$IFS"
+  local reglob=0
+
+  # Word-splitting on "/" is the point here; pathname expansion is NOT. An
+  # unquoted expansion does both, so without `set -f` a path like "README.*"
+  # globs against the workspace and becomes "README.md/README.txt", and
+  # "out/[a]card.svg" quietly becomes "out/acard.svg" -- valid filenames
+  # rewritten based on what happens to sit next to them.
+  case "$-" in
+    *f*) ;;
+    *) reglob=1 ;;
+  esac
+  set -f
   IFS='/'
-  # Word-splitting on "/" is the point here.
   # shellcheck disable=SC2086
   set -- $raw
   IFS="$oldIFS"
+  [ "$reglob" -eq 1 ] && set +f
   for part in "$@"; do
     case "$part" in
       ''|.) ;;
@@ -52,6 +64,38 @@ normalize_relative_path() {
   printf '%s' "$joined"
 }
 
+# The normalisation above is purely lexical, so it cannot see a symlink: with
+# "escape -> /tmp/outside" checked in (or created by an earlier step),
+# "escape/card.svg" normalises cleanly and the generator then writes to
+# /tmp/outside/card.svg. Resolve the deepest component that actually exists and
+# require it to be the workspace or below it.
+#
+# This closes the checked-in and earlier-step cases. It cannot close a race
+# where the symlink appears between this check and the write; bash has no
+# openat(O_NOFOLLOW) to offer, and a workflow that can do that can already run
+# arbitrary code in the job.
+assert_inside_workspace() {
+  local candidate="$1" dir resolved root
+  root="$(pwd -P)" || return 1
+
+  # An existing final component that is itself a symlink is refused outright.
+  if [ -L "$candidate" ]; then
+    return 1
+  fi
+
+  dir="$(dirname "$candidate")"
+  while [ "$dir" != "." ] && [ "$dir" != "/" ] && [ ! -d "$dir" ]; do
+    dir="$(dirname "$dir")"
+  done
+  resolved="$(cd "$dir" 2>/dev/null && pwd -P)" || return 1
+
+  case "$resolved" in
+    "$root") return 0 ;;
+    "$root"/*) return 0 ;;
+    *) return 1 ;;
+  esac
+}
+
 REQUESTED_PATH="$OUTPUT_PATH"
 case "$REQUESTED_PATH" in
   *$'\n'*|*$'\r'*)
@@ -67,6 +111,14 @@ if ! OUTPUT_PATH="$(normalize_relative_path "$REQUESTED_PATH")"; then
   log_error "path must stay inside the workspace: $REQUESTED_PATH"
   exit 1
 fi
+if ! assert_inside_workspace "$OUTPUT_PATH"; then
+  log_error "path resolves outside the workspace through a symlink: $REQUESTED_PATH"
+  exit 1
+fi
+# Report the settled path: normalisation can rewrite what was asked for
+# ("./profile/x.svg" -> "profile/x.svg"), and this is the value that ends up in
+# the `path` output.
+log_info "Resolved output path: $OUTPUT_PATH"
 
 # ---- 2. Parse options (query string or JSON) ----
 parse_options() {

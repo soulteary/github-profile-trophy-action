@@ -65,6 +65,56 @@ accept() {
   esac
 }
 
+# --- glob characters are filenames, not patterns -------------------------
+# An unquoted expansion globs as well as splits, so without `set -f` these get
+# rewritten based on whatever happens to sit in the workspace.
+glob_safe() {
+  local label="$1" path="$2" out
+  out="$(run_with_path "$path")"
+  case "$out" in
+    *"path must"*|*"resolves outside"*) fail "$label" "wrongly refused: ${out//$'\n'/ | }"; return ;;
+  esac
+  # Assert on the resolved path the action reports, not on a later step: an
+  # unfixed glob turns "README.*" into "README.md/README.txt" and
+  # "[a]card.svg" into "acard.svg", both of which are otherwise accepted
+  # silently and produce an identical downstream error.
+  case "$out" in
+    *"Resolved output path: $path"*) pass "$label" ;;
+    *) fail "$label" "not resolved verbatim: ${out//$'\n'/ | }" ;;
+  esac
+}
+
+# These two groups need a scratch workspace: they create decoy files whose
+# names the glob would otherwise match, and a symlink pointing out of it.
+# Never run them in the repository root -- "README.*" would clobber the real one.
+scratch="$(mktemp -d)"
+outside="$(mktemp -d)"
+trap 'rm -rf "$scratch" "$outside"' EXIT
+cd "$scratch" || exit 1
+: > "README.md"; : > "README.txt"; : > "acard.svg"
+
+echo "glob characters preserved:"
+glob_safe "asterisk"        "README.*"
+glob_safe "bracket class"   "[a]card.svg"
+glob_safe "question mark"   "card?.svg"
+
+# --- a symlinked parent must not smuggle the write out of the workspace ---
+echo "symlink containment:"
+ln -sfn "$outside" escape
+out="$(run_with_path "escape/card.svg")"
+case "$out" in
+  *"resolves outside the workspace through a symlink"*) pass "symlinked parent" ;;
+  *) fail "symlinked parent" "not refused: ${out//$'\n'/ | }" ;;
+esac
+: > "$outside/card.svg"
+ln -sfn "$outside/card.svg" direct.svg
+out="$(run_with_path "direct.svg")"
+case "$out" in
+  *"resolves outside the workspace through a symlink"*) pass "symlinked target" ;;
+  *) fail "symlinked target" "not refused: ${out//$'\n'/ | }" ;;
+esac
+cd "$ROOT" || exit 1
+
 echo "accepted:"
 accept "plain file"               "card.svg"
 accept "nested"                   "profile/card.svg"
