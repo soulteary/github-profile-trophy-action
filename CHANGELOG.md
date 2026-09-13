@@ -21,9 +21,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   as is a cycle.
 
 ### Changed
-- Every `uses:` example across the six README translations now pins `@v1.2.1`.
-  They still pointed at `@v1.1.0`, so a reader copying the documented example
-  ran the version from before the path-containment work.
+- Every `uses:` example across the six README translations now points at the
+  `@v1` alias. They still pointed at `@v1.1.0`, so a reader copying the
+  documented example ran the version from before the path-containment work.
+  The alias is the reference `release.yml` maintains, so the examples no longer
+  go stale at each release.
+- A dangling symlink whose target stays inside the workspace
+  (`x.svg -> nowhere/y.svg`) is accepted rather than refused. v1.2.0 refused it
+  along with every other symlink. It is contained, which is all this check
+  judges, and the refusal said the path resolved *outside* the workspace, which
+  was not true of it. The write then fails on its own merits.
 
 ## [1.2.0] - 2026-09-13
 
