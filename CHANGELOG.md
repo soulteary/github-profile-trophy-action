@@ -7,6 +7,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.1] - 2026-09-13
+
+### Fixed
+- A symlink that stays inside the workspace works again. v1.2.0 refused any
+  `path` whose final component was a symlink, so `card.svg -> real/card.svg` —
+  workspace-relative, exactly what the input documents, and accepted before
+  v1.2.0 — started failing for no security gain. A symlink is now
+  followed to the end of its chain and judged by where it lands, the same
+  containment test v1.2.0 already applied to parent directories, judged with
+  physical path resolution so a `..` in a chain target is resolved the way the
+  kernel resolves it rather than cancelled lexically against the symlink that
+  precedes it. What v1.2.0 closed stays closed: a target outside the
+  workspace, a symlinked parent directory, and a chain whose last hop leaves
+  the workspace are all refused, as is a cycle.
+
+### Changed
+- Every `uses:` example across the six README translations now points at the
+  `@v1` alias. They still pointed at `@v1.1.0`, so a reader copying the
+  documented example ran the version from before the path-containment work.
+  The alias is the reference `release.yml` maintains, so the examples no longer
+  go stale at each release.
+- A dangling symlink whose target stays inside the workspace
+  (`x.svg -> nowhere/y.svg`) is accepted rather than refused. v1.2.0 refused it
+  along with every other symlink. It is contained, which is all this check
+  judges, and the refusal said the path resolved *outside* the workspace, which
+  was not true of it. The write then fails on its own merits.
+
 ## [1.2.0] - 2026-09-13
 
 ### Security
@@ -97,7 +124,8 @@ not a pure fix. A workflow that branches on it will take a different path:
 The second and third rows are the ones to check before upgrading: a step that
 has silently never run will start running.
 
-[Unreleased]: https://github.com/soulteary/github-profile-trophy-action/compare/v1.2.0...main
+[Unreleased]: https://github.com/soulteary/github-profile-trophy-action/compare/v1.2.1...main
+[1.2.1]: https://github.com/soulteary/github-profile-trophy-action/compare/v1.2.0...v1.2.1
 [1.2.0]: https://github.com/soulteary/github-profile-trophy-action/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/soulteary/github-profile-trophy-action/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/soulteary/github-profile-trophy-action/releases/tag/v1.0.0

@@ -98,20 +98,70 @@ glob_safe "asterisk"        "README.*"
 glob_safe "bracket class"   "[a]card.svg"
 glob_safe "question mark"   "card?.svg"
 
-# --- a symlinked parent must not smuggle the write out of the workspace ---
+# --- symlinks are judged by where they land, not by being symlinks ---
 echo "symlink containment:"
 ln -sfn "$outside" escape
 out="$(run_with_path "escape/card.svg")"
 case "$out" in
-  *"resolves outside the workspace through a symlink"*) pass "symlinked parent" ;;
-  *) fail "symlinked parent" "not refused: ${out//$'\n'/ | }" ;;
+  *"resolves outside the workspace through a symlink"*) pass "symlinked parent escapes" ;;
+  *) fail "symlinked parent escapes" "not refused: ${out//$'\n'/ | }" ;;
 esac
 : > "$outside/card.svg"
 ln -sfn "$outside/card.svg" direct.svg
 out="$(run_with_path "direct.svg")"
 case "$out" in
-  *"resolves outside the workspace through a symlink"*) pass "symlinked target" ;;
-  *) fail "symlinked target" "not refused: ${out//$'\n'/ | }" ;;
+  *"resolves outside the workspace through a symlink"*) pass "symlinked target escapes" ;;
+  *) fail "symlinked target escapes" "not refused: ${out//$'\n'/ | }" ;;
+esac
+# A symlink that stays inside satisfies the documented contract and must work:
+# refusing it would break valid workflows for no security gain.
+mkdir -p real && : > real/card.svg
+ln -sfn real/card.svg inside.svg
+out="$(run_with_path "inside.svg")"
+case "$out" in
+  *"resolves outside"*|*"path must"*) fail "symlink staying inside" "wrongly refused: ${out//$'\n'/ | }" ;;
+  *"Resolved output path: inside.svg"*) pass "symlink staying inside" ;;
+  *) fail "symlink staying inside" "unexpected: ${out//$'\n'/ | }" ;;
+esac
+# A write follows every hop, so containment is decided by the END of the chain.
+# "chain.svg -> hop -> $outside/card.svg" looks innocent one hop in: readlink
+# reports "hop", whose directory is the workspace itself.
+ln -sfn "$outside/card.svg" hop
+ln -sfn hop chain.svg
+out="$(run_with_path "chain.svg")"
+case "$out" in
+  *"resolves outside the workspace through a symlink"*) pass "symlink chain escapes" ;;
+  *) fail "symlink chain escapes" "not refused: ${out//$'\n'/ | }" ;;
+esac
+# ...and the fix must be resolution, not a blanket refusal of chains: a chain
+# that stays inside is as valid as a single hop that does.
+ln -sfn real/card.svg hop_inside
+ln -sfn hop_inside chain_inside.svg
+out="$(run_with_path "chain_inside.svg")"
+case "$out" in
+  *"resolves outside"*|*"path must"*) fail "symlink chain staying inside" "wrongly refused: ${out//$'\n'/ | }" ;;
+  *"Resolved output path: chain_inside.svg"*) pass "symlink chain staying inside" ;;
+  *) fail "symlink chain staying inside" "unexpected: ${out//$'\n'/ | }" ;;
+esac
+# A chain target can carry its own "..", and "cd" without -P cancels it against
+# the logical path before following any symlink -- so "link/.." reads as the
+# workspace while a write through it lands beside link's real parent.
+mkdir -p "$outside/dir"
+ln -sfn "$outside/dir" hoplink
+ln -sfn 'hoplink/../evil.svg' dotdot.svg
+out="$(run_with_path "dotdot.svg")"
+case "$out" in
+  *"resolves outside the workspace through a symlink"*) pass "symlink target with .. escapes" ;;
+  *) fail "symlink target with .." "not refused: ${out//$'\n'/ | }" ;;
+esac
+# A cycle must be refused rather than walked forever. If the hop bound ever
+# regresses, this case stops terminating and the job times out.
+ln -sfn loop_b.svg loop_a.svg
+ln -sfn loop_a.svg loop_b.svg
+out="$(run_with_path "loop_a.svg")"
+case "$out" in
+  *"resolves outside the workspace through a symlink"*) pass "symlink cycle" ;;
+  *) fail "symlink cycle" "not refused: ${out//$'\n'/ | }" ;;
 esac
 cd "$ROOT" || exit 1
 
