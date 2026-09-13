@@ -16,6 +16,14 @@ on:
       - 'action.yml'
       - 'index.sh'
 
+# Only the newest run may finish. Each run regenerates every asset from the
+# sources at its own checkout, so a run started on an older commit is already
+# superseded the moment a newer one begins -- and without this it could finish
+# last and make its stale output the final state.
+concurrency:
+  group: generate-trophy-examples
+  cancel-in-progress: true
+
 # The action is invoked as `./` rather than by a published tag: this workflow
 # runs on main and commits its output back to main, so the examples must show
 # what this repository currently produces. Pinning to a release meant the
@@ -248,7 +256,31 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add .github/assets/trophy-*.svg .github/assets/theme-*.svg
           git diff --staged --quiet || git commit -m "Update trophy examples"
-          # No "|| exit 0" here: with nothing staged there is no commit and the
-          # push is a successful no-op, so the only thing it ever suppressed
-          # was a real failure -- leaving a green run that pushed nothing.
+
+          # This job races the branch it pushes to. Generating 30 cards takes
+          # most of a minute, and a merge landing in that window makes the push
+          # a non-fast-forward -- which is exactly what happened on 3306772,
+          # where #4 and #5 merged while the run begun by #6 was still going.
+          if git push; then
+            exit 0
+          fi
+
+          # Rejected, so main moved. What to do depends on WHY, and rebasing
+          # blindly is wrong: `git pull --rebase` replays this commit, it does
+          # not re-run the generation above. If the sources changed underneath
+          # us, replaying would stamp assets built by the old action on top of
+          # the new one -- the same staleness this workflow exists to prevent,
+          # arriving by yet another route.
+          echo "Push rejected; main moved during generation."
+          git fetch origin main
+          if ! git diff --quiet HEAD origin/main -- \
+              action.yml index.sh .github/workflows/generate-examples.yml; then
+            echo "::notice::generation sources changed on main during this run; discarding these assets, the newer run regenerates them."
+            exit 0
+          fi
+
+          # Sources are unchanged, so what was generated is still correct and
+          # only the branch tip moved. Replaying it is safe here.
+          echo "Sources unchanged; rebasing onto the new tip and retrying."
+          git pull --rebase origin main
           git push
