@@ -248,7 +248,24 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add .github/assets/trophy-*.svg .github/assets/theme-*.svg
           git diff --staged --quiet || git commit -m "Update trophy examples"
-          # No "|| exit 0" here: with nothing staged there is no commit and the
-          # push is a successful no-op, so the only thing it ever suppressed
-          # was a real failure -- leaving a green run that pushed nothing.
-          git push
+
+          # This job races the branch it pushes to. Generating 30 cards takes
+          # most of a minute, and a merge landing in that window makes the push
+          # a non-fast-forward -- which is exactly what happened on 3306772,
+          # where #4 and #5 merged while the run begun by #6 was still going.
+          #
+          # Neither of the two obvious responses is right. Failing leaves the
+          # committed assets stale, which is the very thing this workflow
+          # exists to prevent; swallowing the error with the "|| exit 0" that
+          # used to sit here reports success having pushed nothing. Rebase onto
+          # the new tip and try again, and fail loudly only if that does not
+          # converge.
+          for attempt in 1 2 3; do
+            if git push; then
+              exit 0
+            fi
+            echo "Push rejected (attempt ${attempt}); rebasing onto the updated branch."
+            git pull --rebase origin main || break
+          done
+          echo "::error::could not push the regenerated examples after 3 attempts"
+          exit 1
