@@ -11,10 +11,114 @@ OPTIONS="${INPUT_OPTIONS:-}"
 OUTPUT_PATH="${INPUT_PATH:-}"
 REPO_OWNER="${GITHUB_REPOSITORY_OWNER:-}"
 
-# ---- 1. Default output path ----
+# ---- 1. Default and validate output path ----
 if [ -z "$OUTPUT_PATH" ]; then
   OUTPUT_PATH="profile/trophy.svg"
 fi
+
+# `path` is documented as a workspace-relative file name, but nothing enforced
+# it. The value is spliced into `mkdir -p`, into the CLI's --output, and into
+# $GITHUB_OUTPUT, so an absolute path or one climbing out with ".." wrote
+# outside the workspace, and a line break in it injected extra step outputs
+# into $GITHUB_OUTPUT. Validate once, here, before anything consumes it.
+#
+# The check is purely textual: the file does not exist yet, so `realpath` would
+# need its GNU-only -m, and this script also runs on macOS runners, whose
+# /bin/bash is 3.2 -- hence the string accumulator rather than an array.
+normalize_relative_path() {
+  local raw="$1" part joined="" depth=0
+  local oldIFS="$IFS"
+  local reglob=0
+
+  # Word-splitting on "/" is the point here; pathname expansion is NOT. An
+  # unquoted expansion does both, so without `set -f` a path like "README.*"
+  # globs against the workspace and becomes "README.md/README.txt", and
+  # "out/[a]card.svg" quietly becomes "out/acard.svg" -- valid filenames
+  # rewritten based on what happens to sit next to them.
+  case "$-" in
+    *f*) ;;
+    *) reglob=1 ;;
+  esac
+  set -f
+  IFS='/'
+  # shellcheck disable=SC2086
+  set -- $raw
+  IFS="$oldIFS"
+  [ "$reglob" -eq 1 ] && set +f
+  for part in "$@"; do
+    case "$part" in
+      ''|.) ;;
+      ..)
+        # Nothing left to climb out of: the path escapes the workspace.
+        [ "$depth" -eq 0 ] && return 1
+        if [ "$depth" -eq 1 ]; then joined=""; else joined="${joined%/*}"; fi
+        depth=$((depth - 1))
+        ;;
+      *)
+        if [ -z "$joined" ]; then joined="$part"; else joined="$joined/$part"; fi
+        depth=$((depth + 1))
+        ;;
+    esac
+  done
+  [ "$depth" -eq 0 ] && return 1
+  printf '%s' "$joined"
+}
+
+# The normalisation above is purely lexical, so it cannot see a symlink: with
+# "escape -> /tmp/outside" checked in (or created by an earlier step),
+# "escape/card.svg" normalises cleanly and the generator then writes to
+# /tmp/outside/card.svg. Resolve the deepest component that actually exists and
+# require it to be the workspace or below it.
+#
+# This closes the checked-in and earlier-step cases. It cannot close a race
+# where the symlink appears between this check and the write; bash has no
+# openat(O_NOFOLLOW) to offer, and a workflow that can do that can already run
+# arbitrary code in the job.
+assert_inside_workspace() {
+  local candidate="$1" dir resolved root
+  root="$(pwd -P)" || return 1
+
+  # An existing final component that is itself a symlink is refused outright.
+  if [ -L "$candidate" ]; then
+    return 1
+  fi
+
+  dir="$(dirname "$candidate")"
+  while [ "$dir" != "." ] && [ "$dir" != "/" ] && [ ! -d "$dir" ]; do
+    dir="$(dirname "$dir")"
+  done
+  resolved="$(cd "$dir" 2>/dev/null && pwd -P)" || return 1
+
+  case "$resolved" in
+    "$root") return 0 ;;
+    "$root"/*) return 0 ;;
+    *) return 1 ;;
+  esac
+}
+
+REQUESTED_PATH="$OUTPUT_PATH"
+case "$REQUESTED_PATH" in
+  *$'\n'*|*$'\r'*)
+    log_error "path must not contain a line break"
+    exit 1
+    ;;
+  /*)
+    log_error "path must be relative to the workspace, got an absolute path: $REQUESTED_PATH"
+    exit 1
+    ;;
+esac
+if ! OUTPUT_PATH="$(normalize_relative_path "$REQUESTED_PATH")"; then
+  log_error "path must stay inside the workspace: $REQUESTED_PATH"
+  exit 1
+fi
+if ! assert_inside_workspace "$OUTPUT_PATH"; then
+  log_error "path resolves outside the workspace through a symlink: $REQUESTED_PATH"
+  exit 1
+fi
+# Report the settled path: normalisation can rewrite what was asked for
+# ("./profile/x.svg" -> "profile/x.svg"), and this is the value that ends up in
+# the `path` output.
+log_info "Resolved output path: $OUTPUT_PATH"
 
 # ---- 2. Parse options (query string or JSON) ----
 parse_options() {
@@ -66,7 +170,7 @@ process.stdout.write(pairs.join('&'));
     fi
   else
     # Query string: strip leading ?
-    echo "$raw" | sed 's/^?//'
+    echo "${raw#\?}"
   fi
 }
 
@@ -212,6 +316,9 @@ if ! head -n 20 "$OUTPUT_PATH" | grep -i "<svg" >/dev/null 2>&1; then
 fi
 
 log_info "Wrote $OUTPUT_PATH"
+# Safe as a bare key=value line only because section 2 rejected line breaks in
+# the path; $GITHUB_OUTPUT is newline-delimited, so a newline here would let a
+# caller declare arbitrary extra step outputs. Keep that check if this moves.
 if [ -n "${GITHUB_OUTPUT:-}" ]; then
   echo "path=$OUTPUT_PATH" >> "$GITHUB_OUTPUT"
 fi

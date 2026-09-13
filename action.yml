@@ -7,7 +7,10 @@ inputs:
     required: false
     default: ""
   path:
-    description: Output path for SVG file (relative path; include filename with .svg).
+    description: >-
+      Output path for the SVG file. Must be relative to the workspace and stay
+      inside it: absolute paths, paths climbing out with "..", and paths
+      containing a line break are rejected. Include the filename, ending .svg.
     required: false
     default: ""
   token:
