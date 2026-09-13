@@ -1,21 +1,69 @@
+# Publishes a GitHub Release and moves the floating major alias when a stable
+# version tag is pushed.
+#
+# This workflow deliberately uses no third-party actions. It previously called
+# haya14busa/action-update-semver and softprops/action-gh-release, both at
+# mutable major tags, in a job holding `contents: write` — so moving either tag
+# upstream would have run arbitrary code with push access to this repository.
+# What they did amounts to two `gh`/`git` invocations, which are inlined below;
+# the only remaining `uses:` is first-party and pinned to a commit SHA.
+
 name: Release
+
 on:
   push:
-    branches-ignore:
-      - "**"
     tags:
-      - "v*.*.*"
+      # Stable three-segment releases only. The previous filter, "v*.*.*", also
+      # matched prerelease tags such as v1.2.0-rc.1 — and the alias step then
+      # moved a floating reference onto a release candidate.
+      - "v[0-9]+.[0-9]+.[0-9]+"
+
 permissions:
-  contents: write
+  contents: read
+
 jobs:
-  update-semver:
+  release:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write # create the Release and force-push the major alias
     steps:
-      - uses: actions/checkout@v4
-      - uses: haya14busa/action-update-semver@v1
-        with:
-          major_version_tag_only: true
-      - name: Create release
-        uses: softprops/action-gh-release@v1
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Create GitHub Release
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          v="${GITHUB_REF_NAME}"
+          # Creating the Release through the UI also creates the tag, which is
+          # what triggers this workflow, so the Release may already exist.
+          if gh release view "$v" >/dev/null 2>&1; then
+            echo "Release $v already exists; leaving it unchanged."
+          else
+            gh release create "$v" --title "$v" --generate-notes
+          fi
+
+      - name: Update the major version alias
+        shell: bash
+        run: |
+          set -euo pipefail
+          v="${GITHUB_REF_NAME}"
+          major="${v%%.*}"
+
+          # Only ever move a major alias, never a minor one: that matches the
+          # previous major_version_tag_only setting. "%%" (longest match) is
+          # load-bearing — the action this replaces derived the alias with two
+          # rounds of "%" (shortest match), which on a tag like v1.2.0-rc.1
+          # yielded "v1.2" and force-pushed that as if it were a major alias.
+          if [ "$major" = "$v" ]; then
+            echo "::error::could not derive a major alias from ${v}"
+            exit 1
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag -f "$major" "$GITHUB_SHA"
+          git push --force origin "refs/tags/${major}"
+          echo "Updated ${major} -> ${GITHUB_SHA}"
