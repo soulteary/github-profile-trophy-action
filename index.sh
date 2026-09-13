@@ -11,9 +11,61 @@ OPTIONS="${INPUT_OPTIONS:-}"
 OUTPUT_PATH="${INPUT_PATH:-}"
 REPO_OWNER="${GITHUB_REPOSITORY_OWNER:-}"
 
-# ---- 1. Default output path ----
+# ---- 1. Default and validate output path ----
 if [ -z "$OUTPUT_PATH" ]; then
   OUTPUT_PATH="profile/trophy.svg"
+fi
+
+# `path` is documented as a workspace-relative file name, but nothing enforced
+# it. The value is spliced into `mkdir -p`, into the CLI's --output, and into
+# $GITHUB_OUTPUT, so an absolute path or one climbing out with ".." wrote
+# outside the workspace, and a line break in it injected extra step outputs
+# into $GITHUB_OUTPUT. Validate once, here, before anything consumes it.
+#
+# The check is purely textual: the file does not exist yet, so `realpath` would
+# need its GNU-only -m, and this script also runs on macOS runners, whose
+# /bin/bash is 3.2 -- hence the string accumulator rather than an array.
+normalize_relative_path() {
+  local raw="$1" part joined="" depth=0
+  local oldIFS="$IFS"
+  IFS='/'
+  # Word-splitting on "/" is the point here.
+  # shellcheck disable=SC2086
+  set -- $raw
+  IFS="$oldIFS"
+  for part in "$@"; do
+    case "$part" in
+      ''|.) ;;
+      ..)
+        # Nothing left to climb out of: the path escapes the workspace.
+        [ "$depth" -eq 0 ] && return 1
+        if [ "$depth" -eq 1 ]; then joined=""; else joined="${joined%/*}"; fi
+        depth=$((depth - 1))
+        ;;
+      *)
+        if [ -z "$joined" ]; then joined="$part"; else joined="$joined/$part"; fi
+        depth=$((depth + 1))
+        ;;
+    esac
+  done
+  [ "$depth" -eq 0 ] && return 1
+  printf '%s' "$joined"
+}
+
+REQUESTED_PATH="$OUTPUT_PATH"
+case "$REQUESTED_PATH" in
+  *$'\n'*|*$'\r'*)
+    log_error "path must not contain a line break"
+    exit 1
+    ;;
+  /*)
+    log_error "path must be relative to the workspace, got an absolute path: $REQUESTED_PATH"
+    exit 1
+    ;;
+esac
+if ! OUTPUT_PATH="$(normalize_relative_path "$REQUESTED_PATH")"; then
+  log_error "path must stay inside the workspace: $REQUESTED_PATH"
+  exit 1
 fi
 
 # ---- 2. Parse options (query string or JSON) ----
@@ -66,7 +118,7 @@ process.stdout.write(pairs.join('&'));
     fi
   else
     # Query string: strip leading ?
-    echo "$raw" | sed 's/^?//'
+    echo "${raw#\?}"
   fi
 }
 
@@ -212,6 +264,9 @@ if ! head -n 20 "$OUTPUT_PATH" | grep -i "<svg" >/dev/null 2>&1; then
 fi
 
 log_info "Wrote $OUTPUT_PATH"
+# Safe as a bare key=value line only because section 2 rejected line breaks in
+# the path; $GITHUB_OUTPUT is newline-delimited, so a newline here would let a
+# caller declare arbitrary extra step outputs. Keep that check if this moves.
 if [ -n "${GITHUB_OUTPUT:-}" ]; then
   echo "path=$OUTPUT_PATH" >> "$GITHUB_OUTPUT"
 fi

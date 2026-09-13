@@ -1,0 +1,48 @@
+# This repository had no CI at all: the only workflow was release.yml, so
+# index.sh -- the entire action -- was never executed by anything before a
+# consumer ran it.
+#
+# The macOS leg is not redundant. Its /bin/bash is 3.2, and index.sh carries a
+# "#!/bin/bash" shebang, so anything written for bash 4+ breaks only there.
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Check shell syntax
+        run: bash -n index.sh && bash -n test/test-path-input.sh
+
+      - name: ShellCheck
+        run: shellcheck index.sh test/test-path-input.sh
+
+  test:
+    name: Tests (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Report the bash that will run index.sh
+        run: /bin/bash --version | head -1
+
+      - name: Path input validation
+        run: bash test/test-path-input.sh
