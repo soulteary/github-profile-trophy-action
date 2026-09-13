@@ -8,7 +8,13 @@ on:
     branches:
       - main
     paths:
+      # The action's own sources belong here now that the steps below run `./`
+      # rather than a published tag: a change to action.yml or index.sh can
+      # change what the examples look like, and if it does not start a run the
+      # committed assets go stale exactly as they did on v1.0.0.
       - '.github/workflows/generate-examples.yml'
+      - 'action.yml'
+      - 'index.sh'
 
 # The action is invoked as `./` rather than by a published tag: this workflow
 # runs on main and commits its output back to main, so the examples must show
