@@ -21,6 +21,21 @@
 
 在运行工作流的仓库中，打开 **Settings → Secrets and variables → Actions**，创建名为 `PROFILE_STATS_TOKEN` 的仓库 Secret，填入令牌，并按下面的示例传入 `token`。默认 `GITHUB_TOKEN` 的权限限于工作流所在仓库，读取跨仓库的个人统计时可能失败。保留 `contents: write` 用于提交生成图片；检出和推送仍使用默认令牌。
 
+### 排查：`Resource not accessible by integration`
+
+如果生成卡片时报错 `Failed to fetch user data: GitHub repository query failed: Resource not accessible by integration`，请检查统计步骤使用的令牌：
+
+1. 在 [个人访问令牌页面](https://github.com/settings/tokens) 创建 classic 类型的 PAT，使用上文公开统计的权限配置。这一配置解决了[用户反馈的问题](https://github.com/soulteary/github-profile-trophy/issues/1#issuecomment-6110141543)，并不代表它是所有查询所需的最小权限。
+2. 在运行工作流的仓库中，将令牌保存为 `PROFILE_STATS_TOKEN`，并确认令牌没有过期或被撤销。
+3. 在**每个**奖杯生成步骤中设置 `token: ${{ secrets.PROFILE_STATS_TOKEN }}`；分别生成浅色和深色卡片时，两个步骤都需要配置。
+4. 进入 **Actions → 选择工作流 → Run workflow**，重新运行。
+
+如果没有传入 `token`，或引用的 Secret 为空，Action 会回退到 `github.token`（自动生成的 `GITHUB_TOKEN`）。请检查 Secret 名称和工作流是否能读取它；来自 fork 的拉取请求触发工作流时，仓库 Secret 不会传入。
+
+将工作流 `permissions` 增加为 `contents: write`，不会让 `GITHUB_TOKEN` 获得其他仓库的访问权限。该权限用于在工作流所在仓库提交和推送 SVG。检出代码继续使用默认令牌，PAT 只传给奖杯 Action 的 `token` 输入。参见 GitHub 的 [GITHUB_TOKEN 说明](https://docs.github.com/en/actions/concepts/security/github_token)。
+
+令牌权限错误与 GraphQL 查询或渲染问题需要分别排查。如果有效 PAT 仍然报错，请检查目标资源的访问权限和组织的令牌策略，并在反馈中提供错误信息、Action 与二进制版本，不要提供令牌内容。
+
 ## 快速开始
 
 ```yaml

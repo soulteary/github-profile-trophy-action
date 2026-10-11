@@ -14,7 +14,7 @@ inputs:
     required: false
     default: ""
   token:
-    description: GitHub token (PAT or GITHUB_TOKEN).
+    description: GitHub token for profile statistics. Use a dedicated PAT for cross-repository statistics; omitted or empty values fall back to the repository-scoped GITHUB_TOKEN.
     required: false
     default: ""
   version:
