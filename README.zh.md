@@ -66,7 +66,7 @@ jobs:
 - `options`: 奖杯卡片选项，可以是查询字符串格式 (`key=value&...`) 或 JSON 格式。如果省略 `username`，Action 会使用仓库所有者。
 - `path`: SVG 文件的输出路径。默认为 `profile/trophy.svg`。
 - `token`: GitHub token (PAT 或 `GITHUB_TOKEN`)。对于私有仓库统计，请使用具有 `repo` 和 `read:user` 权限的 [PAT](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens)。
-- `version`: 要使用的 github-profile-trophy 二进制文件版本（例如：`v1.0.0`）。默认为 `v1.0.0`。使用 `latest` 获取最新版本。
+- `version`: 要使用的 github-profile-trophy 二进制文件版本（例如：`v1.1.0`）。默认为 `v1.1.0`。使用 `latest` 获取最新版本。
 - `repo`: GitHub 仓库，格式为 `owner/repo`。默认为 `soulteary/github-profile-trophy`。
 
 ## 输出参数
@@ -186,7 +186,7 @@ jobs:
     options: 'username=${{ github.repository_owner }}&theme=gruvbox'
     path: profile/trophy.svg
     token: ${{ secrets.GITHUB_TOKEN }}
-    version: v1.0.0  # 使用指定版本
+    version: v1.1.0  # 使用指定版本
     # version: latest  # 或使用最新版本
 ```
 

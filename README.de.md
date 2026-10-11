@@ -66,7 +66,7 @@ Diese Action ist eine empfohlene Deployment-Option. Sie können auch auf Vercel 
 - `options`: Optionen für die Trophy-Karte als Query-String (`key=value&...`) oder JSON. Wenn `username` weggelassen wird, verwendet die Action den Repository-Besitzer.
 - `path`: Ausgabepfad für die SVG-Datei. Standard: `profile/trophy.svg`.
 - `token`: GitHub Token (PAT oder `GITHUB_TOKEN`). Für private Repository-Statistiken verwenden Sie ein [PAT](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens) mit `repo` und `read:user` Berechtigungen.
-- `version`: Version der github-profile-trophy Binärdatei (z.B. `v1.0.0`). Standard: `v1.0.0`. Verwenden Sie `latest` für die neueste Version.
+- `version`: Version der github-profile-trophy Binärdatei (z.B. `v1.1.0`). Standard: `v1.1.0`. Verwenden Sie `latest` für die neueste Version.
 - `repo`: GitHub Repository im Format `owner/repo`. Standard: `soulteary/github-profile-trophy`.
 
 ## Ausgaben
@@ -186,7 +186,7 @@ Die `options` Eingabe akzeptiert folgende Parameter:
     options: 'username=${{ github.repository_owner }}&theme=gruvbox'
     path: profile/trophy.svg
     token: ${{ secrets.GITHUB_TOKEN }}
-    version: v1.0.0  # Verwenden Sie spezifische Version
+    version: v1.1.0  # Verwenden Sie spezifische Version
     # version: latest  # Oder verwenden Sie neueste Version
 ```
 

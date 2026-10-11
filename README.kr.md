@@ -66,7 +66,7 @@ jobs:
 - `options`: 쿼리 문자열(`key=value&...`) 또는 JSON 형식의 트로피 카드 옵션. `username`이 생략되면 action은 저장소 소유자를 사용합니다.
 - `path`: SVG 파일의 출력 경로. 기본값: `profile/trophy.svg`.
 - `token`: GitHub 토큰(PAT 또는 `GITHUB_TOKEN`). 비공개 저장소 통계의 경우 `repo` 및 `read:user` 범위가 있는 [PAT](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens)를 사용하세요.
-- `version`: 사용할 github-profile-trophy 바이너리 버전(예: `v1.0.0`). 기본값: `v1.0.0`. 최신 버전을 얻으려면 `latest`를 사용하세요.
+- `version`: 사용할 github-profile-trophy 바이너리 버전(예: `v1.1.0`). 기본값: `v1.1.0`. 최신 버전을 얻으려면 `latest`를 사용하세요.
 - `repo`: `owner/repo` 형식의 GitHub 저장소. 기본값: `soulteary/github-profile-trophy`.
 
 ## 출력
@@ -186,7 +186,7 @@ jobs:
     options: 'username=${{ github.repository_owner }}&theme=gruvbox'
     path: profile/trophy.svg
     token: ${{ secrets.GITHUB_TOKEN }}
-    version: v1.0.0  # 특정 버전 사용
+    version: v1.1.0  # 특정 버전 사용
     # version: latest  # 또는 최신 버전 사용
 ```
 
