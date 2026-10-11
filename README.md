@@ -15,6 +15,12 @@ Generate [GitHub Profile Trophy](https://github.com/soulteary/github-profile-tro
 
 This Action uses the Go implementation of `github-profile-trophy` service, downloading pre-built binaries from GitHub Releases and calling them via CLI to generate trophy cards.
 
+## Token setup
+
+Create a personal access token (classic) with `public_repo` and `read:user` for public statistics. To include private repositories, use `repo` instead of `public_repo`; this scope also grants repository write access. Set an expiration date and renew the secret when the token expires.
+
+In the repository running the workflow, open **Settings → Secrets and variables → Actions**, create a repository secret named `PROFILE_STATS_TOKEN`, and store the token there. Pass it through the `token` input as shown below. The automatic `GITHUB_TOKEN` is scoped to the workflow repository and can fail when fetching profile statistics across repositories. Keep `contents: write` for committing generated cards; checkout and push can continue using the automatic token.
+
 ## Quick Start
 
 ```yaml
@@ -40,7 +46,7 @@ jobs:
         with:
           options: 'username=${{ github.repository_owner }}&theme=gruvbox&column=7&margin-w=15&margin-h=15'
           path: profile/trophy.svg
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.PROFILE_STATS_TOKEN }}
 
       - name: Commit trophy card
         run: |
@@ -65,7 +71,7 @@ This action is a recommended deployment option. You can also deploy on Vercel or
 
 - `options`: Options for the trophy card as a query string (`key=value&...`) or JSON. If `username` is omitted, the action uses the repository owner.
 - `path`: Output path for the SVG file. Defaults to `profile/trophy.svg`.
-- `token`: GitHub token (PAT or `GITHUB_TOKEN`). For private repo stats, use a [PAT](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens) with `repo` and `read:user` scopes.
+- `token`: PAT for cross-repository statistics, supplied via `${{ secrets.PROFILE_STATS_TOKEN }}`. See [token setup](README.md#token-setup).
 - `version`: Version of github-profile-trophy binary to use (e.g., `v1.1.0`). Defaults to `v1.1.0`. Use `latest` to get the latest release.
 - `repo`: GitHub repository in format `owner/repo`. Defaults to `soulteary/github-profile-trophy`.
 
@@ -98,7 +104,7 @@ The `options` input accepts the following parameters:
   with:
     options: 'username=${{ github.repository_owner }}'
     path: .github/assets/trophy.svg
-    token: ${{ secrets.GITHUB_TOKEN }}
+    token: ${{ secrets.PROFILE_STATS_TOKEN }}
 ```
 
 ![Basic Trophy](.github/assets/trophy-basic.svg)
@@ -111,7 +117,7 @@ The `options` input accepts the following parameters:
   with:
     options: 'username=${{ github.repository_owner }}&theme=onedark'
     path: .github/assets/trophy.svg
-    token: ${{ secrets.GITHUB_TOKEN }}
+    token: ${{ secrets.PROFILE_STATS_TOKEN }}
 ```
 
 ![Themed Trophy](.github/assets/trophy-themed.svg)
@@ -124,7 +130,7 @@ The `options` input accepts the following parameters:
   with:
     options: 'username=${{ github.repository_owner }}&title=Stars,Followers'
     path: .github/assets/trophy.svg
-    token: ${{ secrets.GITHUB_TOKEN }}
+    token: ${{ secrets.PROFILE_STATS_TOKEN }}
 ```
 
 ![Filtered by Titles](.github/assets/trophy-filtered-titles.svg)
@@ -137,7 +143,7 @@ The `options` input accepts the following parameters:
   with:
     options: 'username=${{ github.repository_owner }}&rank=S,AAA'
     path: .github/assets/trophy.svg
-    token: ${{ secrets.GITHUB_TOKEN }}
+    token: ${{ secrets.PROFILE_STATS_TOKEN }}
 ```
 
 ![Filtered by Ranks](.github/assets/trophy-filtered-ranks.svg)
@@ -150,7 +156,7 @@ The `options` input accepts the following parameters:
   with:
     options: 'username=${{ github.repository_owner }}&column=3&row=2&margin-w=15&margin-h=15'
     path: .github/assets/trophy.svg
-    token: ${{ secrets.GITHUB_TOKEN }}
+    token: ${{ secrets.PROFILE_STATS_TOKEN }}
 ```
 
 ![Custom Layout](.github/assets/trophy-custom-layout.svg)
@@ -163,7 +169,7 @@ The `options` input accepts the following parameters:
   with:
     options: 'username=${{ github.repository_owner }}&theme=gruvbox&no-bg=true&no-frame=true'
     path: .github/assets/trophy.svg
-    token: ${{ secrets.GITHUB_TOKEN }}
+    token: ${{ secrets.PROFILE_STATS_TOKEN }}
 ```
 
 ### JSON Options
@@ -174,7 +180,7 @@ The `options` input accepts the following parameters:
   with:
     options: '{"username":"${{ github.repository_owner }}","theme":"gruvbox","column":7,"margin-w":15,"margin-h":15}'
     path: .github/assets/trophy.svg
-    token: ${{ secrets.GITHUB_TOKEN }}
+    token: ${{ secrets.PROFILE_STATS_TOKEN }}
 ```
 
 ### Specify Version
@@ -185,7 +191,7 @@ The `options` input accepts the following parameters:
   with:
     options: 'username=${{ github.repository_owner }}&theme=gruvbox'
     path: profile/trophy.svg
-    token: ${{ secrets.GITHUB_TOKEN }}
+    token: ${{ secrets.PROFILE_STATS_TOKEN }}
     version: v1.1.0  # Use specific version
     # version: latest  # Or use latest release
 ```

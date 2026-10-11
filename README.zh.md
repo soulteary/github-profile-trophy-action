@@ -15,6 +15,12 @@
 
 本 Action 使用 Go 版本的 `github-profile-trophy` 服务，从 GitHub Releases 下载预编译的二进制文件，通过 CLI 调用生成奖杯卡片。
 
+## 令牌配置
+
+创建个人访问令牌（classic）：公开仓库统计选择 `public_repo` 和 `read:user`；需要包含私有仓库时，用 `repo` 替代 `public_repo`（该权限也包含仓库写权限）。设置有效期，过期后更新 Secret。
+
+在运行工作流的仓库中，打开 **Settings → Secrets and variables → Actions**，创建名为 `PROFILE_STATS_TOKEN` 的仓库 Secret，填入令牌，并按下面的示例传入 `token`。默认 `GITHUB_TOKEN` 的权限限于工作流所在仓库，读取跨仓库的个人统计时可能失败。保留 `contents: write` 用于提交生成图片；检出和推送仍使用默认令牌。
+
 ## 快速开始
 
 ```yaml
@@ -40,7 +46,7 @@ jobs:
         with:
           options: 'username=${{ github.repository_owner }}&theme=gruvbox&column=7&margin-w=15&margin-h=15'
           path: profile/trophy.svg
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.PROFILE_STATS_TOKEN }}
 
       - name: Commit trophy card
         run: |
@@ -65,7 +71,7 @@ jobs:
 
 - `options`: 奖杯卡片选项，可以是查询字符串格式 (`key=value&...`) 或 JSON 格式。如果省略 `username`，Action 会使用仓库所有者。
 - `path`: SVG 文件的输出路径。默认为 `profile/trophy.svg`。
-- `token`: GitHub token (PAT 或 `GITHUB_TOKEN`)。对于私有仓库统计，请使用具有 `repo` 和 `read:user` 权限的 [PAT](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens)。
+- `token`: 用于跨仓库统计的个人访问令牌，示例使用 `${{ secrets.PROFILE_STATS_TOKEN }}`。参见上方令牌配置。
 - `version`: 要使用的 github-profile-trophy 二进制文件版本（例如：`v1.1.0`）。默认为 `v1.1.0`。使用 `latest` 获取最新版本。
 - `repo`: GitHub 仓库，格式为 `owner/repo`。默认为 `soulteary/github-profile-trophy`。
 
@@ -98,7 +104,7 @@ jobs:
   with:
     options: 'username=${{ github.repository_owner }}'
     path: .github/assets/trophy.svg
-    token: ${{ secrets.GITHUB_TOKEN }}
+    token: ${{ secrets.PROFILE_STATS_TOKEN }}
 ```
 
 ![基础奖杯](.github/assets/trophy-basic.svg)
@@ -111,7 +117,7 @@ jobs:
   with:
     options: 'username=${{ github.repository_owner }}&theme=onedark'
     path: .github/assets/trophy.svg
-    token: ${{ secrets.GITHUB_TOKEN }}
+    token: ${{ secrets.PROFILE_STATS_TOKEN }}
 ```
 
 ![主题奖杯](.github/assets/trophy-themed.svg)
@@ -124,7 +130,7 @@ jobs:
   with:
     options: 'username=${{ github.repository_owner }}&title=Stars,Followers'
     path: .github/assets/trophy.svg
-    token: ${{ secrets.GITHUB_TOKEN }}
+    token: ${{ secrets.PROFILE_STATS_TOKEN }}
 ```
 
 ![按标题过滤](.github/assets/trophy-filtered-titles.svg)
@@ -137,7 +143,7 @@ jobs:
   with:
     options: 'username=${{ github.repository_owner }}&rank=S,AAA'
     path: .github/assets/trophy.svg
-    token: ${{ secrets.GITHUB_TOKEN }}
+    token: ${{ secrets.PROFILE_STATS_TOKEN }}
 ```
 
 ![按等级过滤](.github/assets/trophy-filtered-ranks.svg)
@@ -150,7 +156,7 @@ jobs:
   with:
     options: 'username=${{ github.repository_owner }}&column=3&row=2&margin-w=15&margin-h=15'
     path: .github/assets/trophy.svg
-    token: ${{ secrets.GITHUB_TOKEN }}
+    token: ${{ secrets.PROFILE_STATS_TOKEN }}
 ```
 
 ![自定义布局](.github/assets/trophy-custom-layout.svg)
@@ -163,7 +169,7 @@ jobs:
   with:
     options: 'username=${{ github.repository_owner }}&theme=gruvbox&no-bg=true&no-frame=true'
     path: .github/assets/trophy.svg
-    token: ${{ secrets.GITHUB_TOKEN }}
+    token: ${{ secrets.PROFILE_STATS_TOKEN }}
 ```
 
 ### JSON 选项
@@ -174,7 +180,7 @@ jobs:
   with:
     options: '{"username":"${{ github.repository_owner }}","theme":"gruvbox","column":7,"margin-w":15,"margin-h":15}'
     path: .github/assets/trophy.svg
-    token: ${{ secrets.GITHUB_TOKEN }}
+    token: ${{ secrets.PROFILE_STATS_TOKEN }}
 ```
 
 ### 指定版本
@@ -185,7 +191,7 @@ jobs:
   with:
     options: 'username=${{ github.repository_owner }}&theme=gruvbox'
     path: profile/trophy.svg
-    token: ${{ secrets.GITHUB_TOKEN }}
+    token: ${{ secrets.PROFILE_STATS_TOKEN }}
     version: v1.1.0  # 使用指定版本
     # version: latest  # 或使用最新版本
 ```
