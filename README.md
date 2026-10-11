@@ -21,6 +21,21 @@ Create a personal access token (classic) with `public_repo` and `read:user` for 
 
 In the repository running the workflow, open **Settings → Secrets and variables → Actions**, create a repository secret named `PROFILE_STATS_TOKEN`, and store the token there. Pass it through the `token` input as shown below. The automatic `GITHUB_TOKEN` is scoped to the workflow repository and can fail when fetching profile statistics across repositories. Keep `contents: write` for committing generated cards; checkout and push can continue using the automatic token.
 
+### Troubleshooting: `Resource not accessible by integration`
+
+If generation fails with `Failed to fetch user data: GitHub repository query failed: Resource not accessible by integration`, check the token used for statistics:
+
+1. Create a [personal access token (classic)](https://github.com/settings/tokens) using the public-statistics scopes documented above. This configuration resolved the [reported failure](https://github.com/soulteary/github-profile-trophy/issues/1#issuecomment-6110141543); it is not a claim that these are the minimum scopes for every query.
+2. Save it as `PROFILE_STATS_TOKEN` in the repository that runs the workflow, and check that it has not expired or been revoked.
+3. Set `token: ${{ secrets.PROFILE_STATS_TOKEN }}` on **every** trophy generation step, including separate light and dark cards.
+4. Run the workflow again using **Actions → select the workflow → Run workflow**.
+
+If `token` is omitted or its secret resolves to an empty value, the action falls back to `github.token` (the automatic `GITHUB_TOKEN`). Check the secret name and whether it is available to the workflow; repository secrets are not passed to workflows triggered by pull requests from forks.
+
+Increasing workflow `permissions` to `contents: write` does not give `GITHUB_TOKEN` access to other repositories. That permission is for committing and pushing the generated SVG in the workflow repository. Leave checkout on its default token; pass the PAT only to the trophy action's `token` input. See GitHub's [GITHUB_TOKEN documentation](https://docs.github.com/en/actions/concepts/security/github_token).
+
+A token permission failure is separate from a GraphQL query or rendering bug. If the error persists with a valid PAT, check access to the requested resources and any organization token policies, then report the error and action/binary versions without including the token.
+
 ## Quick Start
 
 ```yaml
