@@ -17,6 +17,8 @@ GitHub Actions ワークフローで [GitHub Profile Trophy](https://github.com/
 
 ## クイックスタート
 
+[PROFILE_STATS_TOKEN setup](README.md#token-setup)
+
 ```yaml
 name: Update README trophy
 
@@ -40,7 +42,7 @@ jobs:
         with:
           options: 'username=${{ github.repository_owner }}&theme=gruvbox&column=7&margin-w=15&margin-h=15'
           path: profile/trophy.svg
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.PROFILE_STATS_TOKEN }}
 
       - name: Commit trophy card
         run: |
@@ -65,7 +67,7 @@ jobs:
 
 - `options`: クエリ文字列(`key=value&...`)または JSON 形式のトロフィーカードオプション。`username` が省略された場合、action はリポジトリ所有者を使用します。
 - `path`: SVG ファイルの出力パス。デフォルト: `profile/trophy.svg`。
-- `token`: GitHub トークン(PAT または `GITHUB_TOKEN`)。プライベートリポジトリの統計の場合、`repo` および `read:user` スコープを持つ [PAT](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens) を使用してください。
+- `token`: GitHub トークン(PAT または `GITHUB_TOKEN`)。プライベートリポジトリの統計の場合、`repo` および `read:user` スコープを持つ [PAT](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens) を使用してください。 [PROFILE_STATS_TOKEN setup](README.md#token-setup).
 - `version`: 使用する github-profile-trophy バイナリのバージョン(例: `v1.1.0`)。デフォルト: `v1.1.0`。最新バージョンを取得するには `latest` を使用します。
 - `repo`: `owner/repo` 形式の GitHub リポジトリ。デフォルト: `soulteary/github-profile-trophy`。
 
@@ -98,7 +100,7 @@ jobs:
   with:
     options: 'username=${{ github.repository_owner }}'
     path: .github/assets/trophy.svg
-    token: ${{ secrets.GITHUB_TOKEN }}
+    token: ${{ secrets.PROFILE_STATS_TOKEN }}
 ```
 
 ![基本トロフィー](.github/assets/trophy-basic.svg)
@@ -111,7 +113,7 @@ jobs:
   with:
     options: 'username=${{ github.repository_owner }}&theme=onedark'
     path: .github/assets/trophy.svg
-    token: ${{ secrets.GITHUB_TOKEN }}
+    token: ${{ secrets.PROFILE_STATS_TOKEN }}
 ```
 
 ![テーマ付きトロフィー](.github/assets/trophy-themed.svg)
@@ -124,7 +126,7 @@ jobs:
   with:
     options: 'username=${{ github.repository_owner }}&title=Stars,Followers'
     path: .github/assets/trophy.svg
-    token: ${{ secrets.GITHUB_TOKEN }}
+    token: ${{ secrets.PROFILE_STATS_TOKEN }}
 ```
 
 ![タイトルでフィルタリング](.github/assets/trophy-filtered-titles.svg)
@@ -137,7 +139,7 @@ jobs:
   with:
     options: 'username=${{ github.repository_owner }}&rank=S,AAA'
     path: .github/assets/trophy.svg
-    token: ${{ secrets.GITHUB_TOKEN }}
+    token: ${{ secrets.PROFILE_STATS_TOKEN }}
 ```
 
 ![ランクでフィルタリング](.github/assets/trophy-filtered-ranks.svg)
@@ -150,7 +152,7 @@ jobs:
   with:
     options: 'username=${{ github.repository_owner }}&column=3&row=2&margin-w=15&margin-h=15'
     path: .github/assets/trophy.svg
-    token: ${{ secrets.GITHUB_TOKEN }}
+    token: ${{ secrets.PROFILE_STATS_TOKEN }}
 ```
 
 ![カスタムレイアウト](.github/assets/trophy-custom-layout.svg)
@@ -163,7 +165,7 @@ jobs:
   with:
     options: 'username=${{ github.repository_owner }}&theme=gruvbox&no-bg=true&no-frame=true'
     path: .github/assets/trophy.svg
-    token: ${{ secrets.GITHUB_TOKEN }}
+    token: ${{ secrets.PROFILE_STATS_TOKEN }}
 ```
 
 ### JSON オプション
@@ -174,7 +176,7 @@ jobs:
   with:
     options: '{"username":"${{ github.repository_owner }}","theme":"gruvbox","column":7,"margin-w":15,"margin-h":15}'
     path: .github/assets/trophy.svg
-    token: ${{ secrets.GITHUB_TOKEN }}
+    token: ${{ secrets.PROFILE_STATS_TOKEN }}
 ```
 
 ### バージョン指定
@@ -185,7 +187,7 @@ jobs:
   with:
     options: 'username=${{ github.repository_owner }}&theme=gruvbox'
     path: profile/trophy.svg
-    token: ${{ secrets.GITHUB_TOKEN }}
+    token: ${{ secrets.PROFILE_STATS_TOKEN }}
     version: v1.1.0  # 特定のバージョンを使用
     # version: latest  # または最新バージョンを使用
 ```

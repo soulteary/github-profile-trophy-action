@@ -17,6 +17,8 @@ Questa Action utilizza l'implementazione Go del servizio `github-profile-trophy`
 
 ## Guida Rapida
 
+[PROFILE_STATS_TOKEN setup](README.md#token-setup)
+
 ```yaml
 name: Update README trophy
 
@@ -40,7 +42,7 @@ jobs:
         with:
           options: 'username=${{ github.repository_owner }}&theme=gruvbox&column=7&margin-w=15&margin-h=15'
           path: profile/trophy.svg
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.PROFILE_STATS_TOKEN }}
 
       - name: Commit trophy card
         run: |
@@ -65,7 +67,7 @@ Questa action è un'opzione di deployment consigliata. Puoi anche deployare su V
 
 - `options`: Opzioni per la carta trofeo come stringa di query (`key=value&...`) o JSON. Se `username` viene omesso, l'action utilizza il proprietario del repository.
 - `path`: Percorso di output per il file SVG. Predefinito: `profile/trophy.svg`.
-- `token`: Token GitHub (PAT o `GITHUB_TOKEN`). Per statistiche di repository private, usa un [PAT](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens) con scope `repo` e `read:user`.
+- `token`: Token GitHub (PAT o `GITHUB_TOKEN`). Per statistiche di repository private, usa un [PAT](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens) con scope `repo` e `read:user`. [PROFILE_STATS_TOKEN setup](README.md#token-setup).
 - `version`: Versione del binario github-profile-trophy da utilizzare (es. `v1.1.0`). Predefinito: `v1.1.0`. Usa `latest` per ottenere l'ultima versione.
 - `repo`: Repository GitHub nel formato `owner/repo`. Predefinito: `soulteary/github-profile-trophy`.
 
@@ -98,7 +100,7 @@ L'input `options` accetta i seguenti parametri:
   with:
     options: 'username=${{ github.repository_owner }}'
     path: .github/assets/trophy.svg
-    token: ${{ secrets.GITHUB_TOKEN }}
+    token: ${{ secrets.PROFILE_STATS_TOKEN }}
 ```
 
 ![Trofeo Base](.github/assets/trophy-basic.svg)
@@ -111,7 +113,7 @@ L'input `options` accetta i seguenti parametri:
   with:
     options: 'username=${{ github.repository_owner }}&theme=onedark'
     path: .github/assets/trophy.svg
-    token: ${{ secrets.GITHUB_TOKEN }}
+    token: ${{ secrets.PROFILE_STATS_TOKEN }}
 ```
 
 ![Trofeo con Tema](.github/assets/trophy-themed.svg)
@@ -124,7 +126,7 @@ L'input `options` accetta i seguenti parametri:
   with:
     options: 'username=${{ github.repository_owner }}&title=Stars,Followers'
     path: .github/assets/trophy.svg
-    token: ${{ secrets.GITHUB_TOKEN }}
+    token: ${{ secrets.PROFILE_STATS_TOKEN }}
 ```
 
 ![Filtrato per Titoli](.github/assets/trophy-filtered-titles.svg)
@@ -137,7 +139,7 @@ L'input `options` accetta i seguenti parametri:
   with:
     options: 'username=${{ github.repository_owner }}&rank=S,AAA'
     path: .github/assets/trophy.svg
-    token: ${{ secrets.GITHUB_TOKEN }}
+    token: ${{ secrets.PROFILE_STATS_TOKEN }}
 ```
 
 ![Filtrato per Ranghi](.github/assets/trophy-filtered-ranks.svg)
@@ -150,7 +152,7 @@ L'input `options` accetta i seguenti parametri:
   with:
     options: 'username=${{ github.repository_owner }}&column=3&row=2&margin-w=15&margin-h=15'
     path: .github/assets/trophy.svg
-    token: ${{ secrets.GITHUB_TOKEN }}
+    token: ${{ secrets.PROFILE_STATS_TOKEN }}
 ```
 
 ![Layout Personalizzato](.github/assets/trophy-custom-layout.svg)
@@ -163,7 +165,7 @@ L'input `options` accetta i seguenti parametri:
   with:
     options: 'username=${{ github.repository_owner }}&theme=gruvbox&no-bg=true&no-frame=true'
     path: .github/assets/trophy.svg
-    token: ${{ secrets.GITHUB_TOKEN }}
+    token: ${{ secrets.PROFILE_STATS_TOKEN }}
 ```
 
 ### Opzioni JSON
@@ -174,7 +176,7 @@ L'input `options` accetta i seguenti parametri:
   with:
     options: '{"username":"${{ github.repository_owner }}","theme":"gruvbox","column":7,"margin-w":15,"margin-h":15}'
     path: .github/assets/trophy.svg
-    token: ${{ secrets.GITHUB_TOKEN }}
+    token: ${{ secrets.PROFILE_STATS_TOKEN }}
 ```
 
 ### Specifica Versione
@@ -185,7 +187,7 @@ L'input `options` accetta i seguenti parametri:
   with:
     options: 'username=${{ github.repository_owner }}&theme=gruvbox'
     path: profile/trophy.svg
-    token: ${{ secrets.GITHUB_TOKEN }}
+    token: ${{ secrets.PROFILE_STATS_TOKEN }}
     version: v1.1.0  # Usa versione specifica
     # version: latest  # Oppure usa ultima versione
 ```

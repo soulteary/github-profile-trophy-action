@@ -17,6 +17,8 @@ GitHub Actions 워크플로우에서 [GitHub Profile Trophy](https://github.com/
 
 ## 빠른 시작
 
+[PROFILE_STATS_TOKEN setup](README.md#token-setup)
+
 ```yaml
 name: Update README trophy
 
@@ -40,7 +42,7 @@ jobs:
         with:
           options: 'username=${{ github.repository_owner }}&theme=gruvbox&column=7&margin-w=15&margin-h=15'
           path: profile/trophy.svg
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.PROFILE_STATS_TOKEN }}
 
       - name: Commit trophy card
         run: |
@@ -65,7 +67,7 @@ jobs:
 
 - `options`: 쿼리 문자열(`key=value&...`) 또는 JSON 형식의 트로피 카드 옵션. `username`이 생략되면 action은 저장소 소유자를 사용합니다.
 - `path`: SVG 파일의 출력 경로. 기본값: `profile/trophy.svg`.
-- `token`: GitHub 토큰(PAT 또는 `GITHUB_TOKEN`). 비공개 저장소 통계의 경우 `repo` 및 `read:user` 범위가 있는 [PAT](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens)를 사용하세요.
+- `token`: GitHub 토큰(PAT 또는 `GITHUB_TOKEN`). 비공개 저장소 통계의 경우 `repo` 및 `read:user` 범위가 있는 [PAT](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens)를 사용하세요. [PROFILE_STATS_TOKEN setup](README.md#token-setup).
 - `version`: 사용할 github-profile-trophy 바이너리 버전(예: `v1.1.0`). 기본값: `v1.1.0`. 최신 버전을 얻으려면 `latest`를 사용하세요.
 - `repo`: `owner/repo` 형식의 GitHub 저장소. 기본값: `soulteary/github-profile-trophy`.
 
@@ -98,7 +100,7 @@ jobs:
   with:
     options: 'username=${{ github.repository_owner }}'
     path: .github/assets/trophy.svg
-    token: ${{ secrets.GITHUB_TOKEN }}
+    token: ${{ secrets.PROFILE_STATS_TOKEN }}
 ```
 
 ![기본 트로피](.github/assets/trophy-basic.svg)
@@ -111,7 +113,7 @@ jobs:
   with:
     options: 'username=${{ github.repository_owner }}&theme=onedark'
     path: .github/assets/trophy.svg
-    token: ${{ secrets.GITHUB_TOKEN }}
+    token: ${{ secrets.PROFILE_STATS_TOKEN }}
 ```
 
 ![테마 트로피](.github/assets/trophy-themed.svg)
@@ -124,7 +126,7 @@ jobs:
   with:
     options: 'username=${{ github.repository_owner }}&title=Stars,Followers'
     path: .github/assets/trophy.svg
-    token: ${{ secrets.GITHUB_TOKEN }}
+    token: ${{ secrets.PROFILE_STATS_TOKEN }}
 ```
 
 ![제목별 필터링](.github/assets/trophy-filtered-titles.svg)
@@ -137,7 +139,7 @@ jobs:
   with:
     options: 'username=${{ github.repository_owner }}&rank=S,AAA'
     path: .github/assets/trophy.svg
-    token: ${{ secrets.GITHUB_TOKEN }}
+    token: ${{ secrets.PROFILE_STATS_TOKEN }}
 ```
 
 ![등급별 필터링](.github/assets/trophy-filtered-ranks.svg)
@@ -150,7 +152,7 @@ jobs:
   with:
     options: 'username=${{ github.repository_owner }}&column=3&row=2&margin-w=15&margin-h=15'
     path: .github/assets/trophy.svg
-    token: ${{ secrets.GITHUB_TOKEN }}
+    token: ${{ secrets.PROFILE_STATS_TOKEN }}
 ```
 
 ![사용자 정의 레이아웃](.github/assets/trophy-custom-layout.svg)
@@ -163,7 +165,7 @@ jobs:
   with:
     options: 'username=${{ github.repository_owner }}&theme=gruvbox&no-bg=true&no-frame=true'
     path: .github/assets/trophy.svg
-    token: ${{ secrets.GITHUB_TOKEN }}
+    token: ${{ secrets.PROFILE_STATS_TOKEN }}
 ```
 
 ### JSON 옵션
@@ -174,7 +176,7 @@ jobs:
   with:
     options: '{"username":"${{ github.repository_owner }}","theme":"gruvbox","column":7,"margin-w":15,"margin-h":15}'
     path: .github/assets/trophy.svg
-    token: ${{ secrets.GITHUB_TOKEN }}
+    token: ${{ secrets.PROFILE_STATS_TOKEN }}
 ```
 
 ### 버전 지정
@@ -185,7 +187,7 @@ jobs:
   with:
     options: 'username=${{ github.repository_owner }}&theme=gruvbox'
     path: profile/trophy.svg
-    token: ${{ secrets.GITHUB_TOKEN }}
+    token: ${{ secrets.PROFILE_STATS_TOKEN }}
     version: v1.1.0  # 특정 버전 사용
     # version: latest  # 또는 최신 버전 사용
 ```
