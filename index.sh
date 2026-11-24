@@ -236,7 +236,7 @@ case "$OS" in
   *) log_error "Unsupported OS: $OS"; exit 1 ;;
 esac
 
-# Version to use (default: latest)
+# Version to use (default: v1.1.1, matching action.yml)
 VERSION="${INPUT_VERSION:-v1.1.1}"
 REPO="${INPUT_REPO:-soulteary/github-profile-trophy}"
 BINARY_NAME="github-profile-trophy-${SUFFIX}"
