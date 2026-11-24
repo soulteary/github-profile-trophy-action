@@ -68,7 +68,7 @@ Questa action è un'opzione di deployment consigliata. Puoi anche deployare su V
 - `options`: Opzioni per la carta trofeo come stringa di query (`key=value&...`) o JSON. Se `username` viene omesso, l'action utilizza il proprietario del repository.
 - `path`: Percorso di output per il file SVG. Predefinito: `profile/trophy.svg`.
 - `token`: Token GitHub (PAT o `GITHUB_TOKEN`). Per statistiche di repository private, usa un [PAT](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens) con scope `repo` e `read:user`. [PROFILE_STATS_TOKEN setup](README.md#token-setup).
-- `version`: Versione del binario github-profile-trophy da utilizzare (es. `v1.1.0`). Predefinito: `v1.1.0`. Usa `latest` per ottenere l'ultima versione.
+- `version`: Versione del binario github-profile-trophy da utilizzare (es. `v1.1.1`). Predefinito: `v1.1.1`. Usa `latest` per ottenere l'ultima versione.
 - `repo`: Repository GitHub nel formato `owner/repo`. Predefinito: `soulteary/github-profile-trophy`.
 
 ## Output
@@ -188,7 +188,7 @@ L'input `options` accetta i seguenti parametri:
     options: 'username=${{ github.repository_owner }}&theme=gruvbox'
     path: profile/trophy.svg
     token: ${{ secrets.PROFILE_STATS_TOKEN }}
-    version: v1.1.0  # Usa versione specifica
+    version: v1.1.1  # Usa versione specifica
     # version: latest  # Oppure usa ultima versione
 ```
 

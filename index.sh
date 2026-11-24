@@ -237,7 +237,7 @@ case "$OS" in
 esac
 
 # Version to use (default: latest)
-VERSION="${INPUT_VERSION:-latest}"
+VERSION="${INPUT_VERSION:-v1.1.1}"
 REPO="${INPUT_REPO:-soulteary/github-profile-trophy}"
 BINARY_NAME="github-profile-trophy-${SUFFIX}"
 BINARY="$(mktemp)"
