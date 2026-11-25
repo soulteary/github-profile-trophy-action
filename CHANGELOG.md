@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3.1] - 2026-11-26
+
+Pin the default trophy engine to the existing github-profile-trophy v1.1.1 release.
+
+- Align the `action.yml` default and the shell fallback; omitted versions no longer fall back to `latest` in direct script use.
+- Clarify dedicated PAT setup for cross-repository profile statistics and the fallback to the repository-scoped automatic token.
+- Refresh generated example cards and their generation workflow.
+
+No token is provisioned by the Action. Existing explicit version inputs remain supported. Prefer an exact Action tag/commit and an exact engine version for reproducible cards. The major `v1` alias is promoted only after exact-version publication.
+
+
 ## [1.2.1] - 2026-09-13
 
 ### Fixed
